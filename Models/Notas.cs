@@ -9,6 +9,7 @@ namespace BlocNotasAPI.Models
     {
         [Key]
         public int NotaId { get; set; }
+        public int NroNota { get; set; }
         public int UsuarioId { get; set; }
         [JsonIgnore]
         [ForeignKey("UsuarioId")]

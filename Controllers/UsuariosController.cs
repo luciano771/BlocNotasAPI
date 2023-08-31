@@ -75,7 +75,7 @@ namespace BlocNotasAPI.Controllers
         {
             _dbContext.Notas.Add(nota);
             await _dbContext.SaveChangesAsync();
-
+            nota.NroNota = nota.NotaId;
             return Ok(new { UsuarioId= nota.UsuarioId,Titulo= nota.Titulo, Contenido = nota.Contenido, Etiquetas = nota.Etiquetas });
         }
 
@@ -93,14 +93,24 @@ namespace BlocNotasAPI.Controllers
             return NotasUsuario;
         }
 
-        // OBTENER IDUSUARIO PARA INSERTARLO EN LA FK IDUSUARIO DE NOTA
+        [HttpDelete]
+        [Authorize]
+        [Route("BorrarNota")]
+        public async Task<ActionResult<Notas>> BorrarNota([FromQuery] int idnotas, [FromQuery] int UsuarioId)
+        {
+            var NotasUsuario = await _dbContext.Notas.FirstOrDefaultAsync(n => n.NotaId == idnotas && n.UsuarioId == UsuarioId);
+
+            if(NotasUsuario == null){return NotFound();}
+
+            _dbContext.Notas.Remove(NotasUsuario);  
+            await _dbContext.SaveChangesAsync();  
+
+            return Ok();
+            
+        }
 
 
-
-
-
-
-            //FUNCIONES RELACIONADAS A LA GENERACION Y FIRMA DEL TOKEN
+        //FUNCIONES RELACIONADAS A LA GENERACION Y FIRMA DEL TOKEN
 
 
         private string GenerateToken(Usuarios users)
