@@ -73,9 +73,21 @@ namespace BlocNotasAPI.Controllers
         [Route("Notas")]
         public async Task<ActionResult<Notas>> AgregarNotas(Notas nota)
         {
-            _dbContext.Notas.Add(nota);
-            await _dbContext.SaveChangesAsync();
-            nota.NroNota = nota.NotaId;
+            try
+            {
+
+                var notas =  await _dbContext.Notas.OrderBy(e => e.NotaId).LastOrDefaultAsync(e => e.UsuarioId == nota.UsuarioId);
+                if (notas == null) { nota.NroNota = 1; } else { nota.NroNota = notas.NotaId + 1; }
+                 _dbContext.Notas.Add(nota);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+
+
             return Ok(new { UsuarioId= nota.UsuarioId,Titulo= nota.Titulo, Contenido = nota.Contenido, Etiquetas = nota.Etiquetas });
         }
 
@@ -129,7 +141,7 @@ namespace BlocNotasAPI.Controllers
             null,
             null,
             claims,
-            expires: DateTime.Now.AddMinutes(5),
+            expires: DateTime.Now.AddMinutes(60),
             signingCredentials: credentials
            );
 
